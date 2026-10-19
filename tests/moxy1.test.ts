@@ -31,9 +31,30 @@ test("login with valid credentials & check assertions", async ({ page }) => {
   await expect(page.locator(".shopping_cart_link")).toBeVisible();
   await expect(page.locator(".inventory_list")).toBeVisible();
   await expect(page.locator(".inventory_item")).toHaveCount(6);
+
+  // Assert the menu items
+  await expect(page.locator("#react-burger-menu-btn")).toBeVisible();
+  await page.click("#react-burger-menu-btn");
+  await expect(page.locator("#inventory_sidebar_link")).toBeVisible();
+  await expect(page.locator("#dynamic_catalog_sidebar_link")).toBeVisible();
+  await page.click("#dynamic_catalog_sidebar_link");
+  await expect(page.locator("#dynamic_catalog_lazy_load_link")).toBeVisible();
+  await expect(page.locator("#dynamic_catalog_spinner_link")).toBeVisible();
+  await expect(page.locator("#dynamic_catalog_slider_link")).toBeVisible();
+  await expect(page.locator("#about_sidebar_link")).toBeVisible();
+  await expect(page.locator("#logout_sidebar_link")).toBeVisible();
+  await expect(page.locator("#reset_sidebar_link")).toBeVisible();
+
+  // Assert that a logged out user cannot access the inventory page
+  await page.click("#logout_sidebar_link");
+  await expect(page).toHaveURL("https://www.saucedemo.com/");
+  await page.goto("https://www.saucedemo.com/inventory.html");
+  await expect(page).toHaveURL("https://www.saucedemo.com/");
+  await expect(page.locator('[data-test="error"]')).toHaveText("Epic sadface: You can only access '/inventory.html' when you are logged in.");
 });
 
 test("login fail cases", async ({ page }) => {
+  // Define an array of all possible login cases which result in an error message
   const login_cases = [
     { user: "standard_user", pass: "wrong_password", error: "Epic sadface: Username and password do not match any user in this service" },
     { user: "wrong_user", pass: "secret_sauce", error: "Epic sadface: Username and password do not match any user in this service" },
@@ -41,6 +62,7 @@ test("login fail cases", async ({ page }) => {
     { user: "wrong_user", pass: "", error: "Epic sadface: Password is required" },
     { user: "locked_out_user", pass: "secret_sauce", error: "Epic sadface: Sorry, this user has been locked out." },
   ];
+  // For each login case, fill in the username and pass, hit login and check the error message. Also make sure user doesn't proceed.
   for (const lc of login_cases) {
     await page.goto("https://www.saucedemo.com/");
     await page.fill("#user-name", lc.user);

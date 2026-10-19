@@ -41,12 +41,6 @@ test("data assertion - GET", async ({ page }) => {
 });
 
 // moxy API test 2
-// test("data assertion - POST", async ({ page }) => {
-// const newUser = {
-//   name: "Jozko Mrkvicka",
-//   job: "QA Tester",
-// };
-
 for (const newUser of users) {
   test(`data assertion - POST for user: ${newUser.name}`, async ({ page }) => {
     const response = await page.request.post("https://reqres.in/api/users", {
